@@ -4,6 +4,7 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { steps } from "./constants";
 import { useState } from "react";
+import { useNavigate } from "react-router";
 
 interface NavItemsProps {
 	open: boolean;
@@ -12,6 +13,7 @@ interface NavItemsProps {
 
 const NavItems = ({ open, handleDrawerClose }: NavItemsProps) => {
 	const theme = useTheme();
+	const navigate = useNavigate();
 
 	const [activeStep, setActiveStep] = useState(0);
 	const [completed, setCompleted] = useState<{
@@ -48,8 +50,9 @@ const NavItems = ({ open, handleDrawerClose }: NavItemsProps) => {
 		setActiveStep((prevActiveStep) => prevActiveStep - 1);
 	};
 
-	const handleStep = (step: number) => () => {
+	const handleStep = (step: number, link: string) => () => {
 		setActiveStep(step);
+		navigate(link);
 	};
 
 	const handleComplete = () => {
@@ -71,9 +74,9 @@ const NavItems = ({ open, handleDrawerClose }: NavItemsProps) => {
 				<IconButton onClick={handleDrawerClose}>{theme.direction === "rtl" ? <ChevronRightIcon /> : <ChevronLeftIcon />}</IconButton>
 			</DrawerHeader>
 			<Stepper nonLinear activeStep={activeStep} orientation="vertical">
-				{steps.map(({ label, description }, index) => (
+				{steps.map(({ label, description, link }, index) => (
 					<Step key={label} completed={completed[index]}>
-						<StepButton color="inherit" onClick={handleStep(index)}>
+						<StepButton color="inherit" onClick={handleStep(index, link)}>
 							{open && label}
 						</StepButton>
 						{open && (

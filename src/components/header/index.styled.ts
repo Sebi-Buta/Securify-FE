@@ -11,6 +11,7 @@ export const StyledHeader = styled(AppBar, {
 })<StyledHeaderProps>(({ theme, isMobile }) => ({
 	zIndex: !isMobile ? theme.zIndex.drawer + 1 : 0,
 	borderBottom: `2px solid ${theme.palette.primary.main}`,
+	backgroundColor: theme.palette.background.paper,
 	transition: theme.transitions.create(["width", "margin"], {
 		easing: theme.transitions.easing.sharp,
 		duration: theme.transitions.duration.leavingScreen,

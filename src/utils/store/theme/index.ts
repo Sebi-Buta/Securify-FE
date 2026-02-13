@@ -5,7 +5,7 @@ interface ThemeOptionsState {
 	themeMode: "light" | "dark";
 	toggleTheme: () => void;
 	userMode: "attack" | "defense";
-	toggleUserMode: () => void;
+	toggleUserMode: (mode: "attack" | "defense") => void;
 }
 
 export const useThemeOptions = create<ThemeOptionsState>()(
@@ -17,9 +17,9 @@ export const useThemeOptions = create<ThemeOptionsState>()(
 					themeMode: state.themeMode === "light" ? "dark" : "light",
 				})),
 			userMode: "attack",
-			toggleUserMode: () =>
-				set((state) => ({
-					userMode: state.userMode === "attack" ? "defense" : "attack",
+			toggleUserMode: (mode) =>
+				set(() => ({
+					userMode: mode,
 				})),
 		}),
 		{
