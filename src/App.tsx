@@ -1,27 +1,38 @@
-import { Box, CssBaseline, ThemeProvider } from "@mui/material";
-import Router from "./utils/router";
-import HeaderNav from "./components/header-nav";
-import { AppWrapper } from "./utils/app-wrapper";
-import { useThemeOptions } from "./utils/store/theme";
-import generateTheme from "./utils/theme";
-import { useMemo } from "react";
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ThemeProvider } from "@/contexts/ThemeContext";
+import AppLayout from "@/components/AppLayout";
+import Index from "./pages/Index";
+import AuthBypass from "./pages/AuthBypass";
+import XssPlayground from "./pages/XssPlayground";
+import DataLeakage from "./pages/DataLeakage";
+import NotFound from "./pages/NotFound";
 
-const App = () => {
-	const { userMode, themeMode } = useThemeOptions((state) => state);
+const queryClient = new QueryClient();
 
-	const theme = useMemo(() => generateTheme(themeMode, userMode), [themeMode, userMode]);
-
-	return (
-		<ThemeProvider theme={theme}>
-			<CssBaseline />
-			<Box display={"flex"}>
-				<HeaderNav />
-				<AppWrapper>
-					<Router />
-				</AppWrapper>
-			</Box>
-		</ThemeProvider>
-	);
-};
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <ThemeProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AppLayout>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/auth-bypass" element={<AuthBypass />} />
+              <Route path="/xss" element={<XssPlayground />} />
+              <Route path="/data-leakage" element={<DataLeakage />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AppLayout>
+        </BrowserRouter>
+      </TooltipProvider>
+    </ThemeProvider>
+  </QueryClientProvider>
+);
 
 export default App;
