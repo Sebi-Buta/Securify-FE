@@ -6,8 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-
-const VULNERABLE_USERS = [{ username: "admin", password: "admin123" }];
+import { useLoginVulnerable, useLoginSecure, useAuth } from "@/hooks";
 
 const AuthBypass = () => {
 	const [username, setUsername] = useState("");
@@ -15,21 +14,61 @@ const AuthBypass = () => {
 	const [showPassword, setShowPassword] = useState(false);
 	const [secure, setSecure] = useState(false);
 
+	const { mutate: loginVulnerable, isPending: isLoginVulnerablePending } = useLoginVulnerable();
+	const { mutate: loginSecure, isPending: isLoginSecurePending } = useLoginSecure();
+	const { login, logout } = useAuth();
+	const isLoading = isLoginVulnerablePending || isLoginSecurePending;
+
 	const handleLogin = (e: React.FormEvent) => {
 		e.preventDefault();
-		if (!secure) {
-			if (username.includes("' OR '1'='1") || username.includes("' OR 1=1--")) {
-				toast.success("🎉 Injecție SQL reușită! Ai ocolit autentificarea.", { duration: 5000 });
-				return;
-			}
+		logout(); // Clear any existing auth state before attempting new login
+
+		if ((!username || !password) && secure) {
+			toast.error("Please enter username and password");
+			return;
 		}
-		const found = VULNERABLE_USERS.find((u) => u.username === username && u.password === password);
-		if (found) {
-			toast.success("Autentificare reușită (credențiale valide).");
-		} else if (secure && (username.includes("'") || username.includes("--"))) {
-			toast.error("🛡️ Input sanitizat! Tentativa de injecție SQL a fost blocată.");
+
+		if (secure) {
+			// Use secure login endpoint
+			loginSecure(
+				{ username, password },
+				{
+					onSuccess: (data) => {
+						if (data.success) {
+							toast.success("🛡️ Autentificare securizată reușită!");
+							login(data.user); // Update auth state with user data
+						} else {
+							toast.error(data.message || "Authentication failed");
+						}
+					},
+					onError: (err: any) => {
+						toast.error(err.message || "Login failed");
+					},
+				},
+			);
 		} else {
-			toast.error("Nume de utilizator sau parolă incorectă.");
+			// Use vulnerable login endpoint - check for SQL injection patterns first
+			// if (username.includes("' OR '1'='1") || username.includes("' OR 1=1--") || username.includes("'OR'1'='1")) {
+			// 	toast.success("🎉 Injecție SQL reușită! Ai ocolit autentificarea.", { duration: 5000 });
+			// 	return;
+			// }
+
+			loginVulnerable(
+				{ username, password },
+				{
+					onSuccess: (data) => {
+						if (data.success) {
+							toast.success("Autentificare reușită (credențiale valide).");
+							login(data.user);
+						} else {
+							toast.error(data.message || "Authentication failed");
+						}
+					},
+					onError: (err: any) => {
+						toast.error(err.message || "Login failed");
+					},
+				},
+			);
 		}
 	};
 
@@ -75,13 +114,14 @@ const AuthBypass = () => {
 								<form onSubmit={handleLogin} className="space-y-4">
 									<div className="space-y-1.5">
 										<Label htmlFor="email" className="text-sm">
-											Email sau Nume Utilizator
+											Email ou Nume Utilizator
 										</Label>
 										<Input
 											id="email"
 											placeholder="admin@exemplu.com"
 											value={username}
 											onChange={(e) => setUsername(e.target.value)}
+											disabled={isLoading}
 										/>
 									</div>
 									<div className="space-y-1.5">
@@ -95,11 +135,13 @@ const AuthBypass = () => {
 												placeholder="••••••••"
 												value={password}
 												onChange={(e) => setPassword(e.target.value)}
+												disabled={isLoading}
 											/>
 											<button
 												type="button"
 												onClick={() => setShowPassword(!showPassword)}
-												className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+												disabled={isLoading}
+												className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground disabled:opacity-50"
 											>
 												{showPassword ? (
 													<EyeOff className="h-4 w-4" />
@@ -109,8 +151,8 @@ const AuthBypass = () => {
 											</button>
 										</div>
 									</div>
-									<Button type="submit" className="w-full">
-										Autentificare
+									<Button type="submit" className="w-full" disabled={isLoading}>
+										{isLoading ? "Authenticating..." : "Autentificare"}
 									</Button>
 									<p className="text-center text-[11px] text-muted-foreground">
 										Protejat de CyberSim Auth v1.0

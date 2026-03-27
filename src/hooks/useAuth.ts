@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { User } from "./useApi";
+import { set } from "date-fns";
 
 const STORAGE_KEY = "securify_user";
 
@@ -19,6 +20,24 @@ export const useAuth = () => {
 		isAuthenticated: false,
 		loading: true,
 	});
+
+	const login = useCallback((user: User) => {
+		localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+		setAuthState({
+			user,
+			isAuthenticated: true,
+			loading: false,
+		});
+	}, []);
+
+	const logout = useCallback(() => {
+		localStorage.removeItem(STORAGE_KEY);
+		setAuthState({
+			user: null,
+			isAuthenticated: false,
+			loading: false,
+		});
+	}, []);
 
 	// Initialize from localStorage on mount
 	useEffect(() => {
@@ -46,24 +65,6 @@ export const useAuth = () => {
 				loading: false,
 			});
 		}
-	}, []);
-
-	const login = useCallback((user: User) => {
-		localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
-		setAuthState({
-			user,
-			isAuthenticated: true,
-			loading: false,
-		});
-	}, []);
-
-	const logout = useCallback(() => {
-		localStorage.removeItem(STORAGE_KEY);
-		setAuthState({
-			user: null,
-			isAuthenticated: false,
-			loading: false,
-		});
 	}, []);
 
 	return {

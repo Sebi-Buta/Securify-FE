@@ -1,48 +1,69 @@
 import { useState } from "react";
-import { Code2, AlertTriangle } from "lucide-react";
+import { Code2, AlertTriangle, Trash2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { toast } from "sonner";
-
-interface Comment {
-	id: number;
-	author: string;
-	text: string;
-	time: string;
-	raw: boolean;
-}
-
-const initialComments: Comment[] = [
-	{ id: 1, author: "Alice Smith", text: "Site excelent! Am învățat multe despre securitate cibernetică astăzi.", time: "acum 2 ore", raw: false },
-	{ id: 2, author: "Bob Jones", text: "Mă poate ajuta cineva cu nivelul de injecție SQL?", time: "acum 5 ore", raw: false },
-];
+import { useGetComments, useCreateComment, useDeleteComment, useAuth } from "@/hooks";
+import { useQueryClient } from "@tanstack/react-query";
 
 const payloads = ["<script>alert('Hackuit')</script>", "<img src=x onerror=alert('Hackuit')>", "<body onload=alert('Hackuit')>"];
 
 const XssPlayground = () => {
-	const [comments, setComments] = useState<Comment[]>(initialComments);
+	const { data: comments = [], isLoading, error } = useGetComments();
+	const { mutate: createComment, isPending: isCreating } = useCreateComment();
+	const { mutate: deleteComment, isPending: isDeleting } = useDeleteComment();
+	const { user } = useAuth();
+	const queryClient = useQueryClient();
+
 	const [input, setInput] = useState("");
-	const [secure, setSecure] = useState(false);
+	const [secure, setSecure] = useState(true);
 
 	const postComment = () => {
-		if (!input.trim()) return;
-		const newComment: Comment = {
-			id: Date.now(),
-			author: "Utilizator Student",
-			text: input,
-			time: "Chiar acum",
-			raw: !secure,
-		};
-		setComments((c) => [...c, newComment]);
+		if (!user) {
+			toast.error("You must be logged in to post a comment");
+			return;
+		}
+		if (!input.trim()) {
+			toast.error("Comment cannot be empty");
+			return;
+		}
+
+		// Show XSS payload feedback
 		if (!secure && (input.includes("<script") || input.includes("onerror") || input.includes("onload"))) {
 			toast.success("🎉 Payload XSS injectat! Verifică HTML-ul randat mai jos.");
 		} else if (secure && (input.includes("<") || input.includes(">"))) {
 			toast.info("🛡️ Tagurile HTML au fost escapate (mod securizat).");
 		}
-		setInput("");
+
+		// Create comment via API
+		createComment(
+			{ author: user.username, content: input },
+			{
+				onSuccess: () => {
+					toast.success("Comentariu postat!");
+					setInput("");
+					queryClient.invalidateQueries({ queryKey: ["comments"] });
+				},
+				onError: (err: any) => {
+					toast.error(err.message || "Failed to post comment");
+				},
+			},
+		);
+	};
+
+	const handleDeleteComment = (commentId: number | string) => {
+		deleteComment(commentId, {
+			onSuccess: () => {
+				toast.success("Comentariu șters!");
+				queryClient.invalidateQueries({ queryKey: ["comments"] });
+			},
+			onError: (err: any) => {
+				toast.error(err.message || "Failed to delete comment");
+			},
+		});
 	};
 
 	return (
@@ -82,46 +103,69 @@ const XssPlayground = () => {
 							</div>
 						</CardHeader>
 						<CardContent className="space-y-4">
-							{comments.map((c) => (
-								<div key={c.id} className="flex gap-3">
-									<Avatar className="h-8 w-8 shrink-0">
-										<AvatarFallback className="bg-primary/10 text-primary text-xs">
-											{c.author
-												.split(" ")
-												.map((w) => w[0])
-												.join("")}
-										</AvatarFallback>
-									</Avatar>
-									<div className="flex-1 min-w-0">
-										<div className="flex items-center justify-between">
-											<p className="text-sm font-medium">{c.author}</p>
-											<span className="text-xs text-muted-foreground">{c.time}</span>
+							{isLoading ? (
+								<div className="text-center py-8 text-muted-foreground">Loading comments...</div>
+							) : error ? (
+								<div className="text-center py-8 text-destructive">Error loading comments</div>
+							) : comments && comments.length > 0 ? (
+								comments.map((c: any) => (
+									<div key={c.id} className="flex gap-3">
+										<Avatar className="h-8 w-8 shrink-0">
+											<AvatarFallback className="bg-primary/10 text-primary text-xs">
+												{c.author
+													.split(" ")
+													.map((w: string) => w[0])
+													.join("")}
+											</AvatarFallback>
+										</Avatar>
+										<div className="flex-1 min-w-0">
+											<div className="flex items-center justify-between">
+												<p className="text-sm font-medium">{c.author}</p>
+												<span className="text-xs text-muted-foreground">
+													{c.created_at
+														? new Date(c.created_at).toLocaleDateString()
+														: "Now"}
+												</span>
+											</div>
+											{secure ? (
+												<p className="text-sm text-muted-foreground mt-0.5">
+													{c.content}
+												</p>
+											) : (
+												<p
+													className="text-sm text-muted-foreground mt-0.5"
+													dangerouslySetInnerHTML={{ __html: c.content }}
+												/>
+											)}
 										</div>
-										{c.raw ? (
-											<p
-												className="text-sm text-muted-foreground mt-0.5"
-												dangerouslySetInnerHTML={{ __html: c.text }}
-											/>
-										) : (
-											<p className="text-sm text-muted-foreground mt-0.5">{c.text}</p>
-										)}
+										<Button
+											variant="ghost"
+											size="sm"
+											onClick={() => handleDeleteComment(c.id)}
+											disabled={isDeleting}
+											className="text-destructive hover:text-destructive"
+										>
+											<Trash2 className="h-4 w-4" />
+										</Button>
 									</div>
-								</div>
-							))}
-
+								))
+							) : (
+								<div className="text-center py-8 text-muted-foreground">No comments yet. Be the first!</div>
+							)}
 							<div className="pt-4 border-t border-border">
 								<Textarea
 									placeholder="Scrie un comentariu..."
 									value={input}
 									onChange={(e) => setInput(e.target.value)}
 									rows={3}
+									disabled={isCreating}
 								/>
 								<div className="flex items-center justify-between mt-3">
 									<p className={`text-xs font-medium ${secure ? "text-success" : "text-destructive"}`}>
 										Tagurile HTML sunt {secure ? "ESCAPATE" : "PERMISE"}
 									</p>
-									<Button onClick={postComment} size="sm">
-										Postează Comentariu
+									<Button onClick={postComment} size="sm" disabled={isCreating}>
+										{isCreating ? "Posting..." : "Postează Comentariu"}
 									</Button>
 								</div>
 							</div>
