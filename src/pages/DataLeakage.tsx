@@ -9,12 +9,14 @@ import { toast } from "sonner";
 import { useGetUsers, useCreateUser, useDeleteUser } from "@/hooks";
 import { useQueryClient } from "@tanstack/react-query";
 import { Switch } from "@/components/ui/switch";
+import { useModules } from "@/lib/store/modules";
 
 const DataLeakage = () => {
 	const { data: users = [], isLoading, error } = useGetUsers();
 	const { mutate: createUser, isPending: isCreating } = useCreateUser();
 	const { mutate: deleteUser, isPending: isDeleting } = useDeleteUser();
 	const queryClient = useQueryClient();
+	const { modulesCompleted, addModuleCompleted } = useModules((state) => state);
 
 	// Form state for creating new user
 	const [newUsername, setNewUsername] = useState("");
@@ -25,6 +27,9 @@ const DataLeakage = () => {
 		if (!newUsername || !newPassword) {
 			toast.error("Please enter both username and password");
 			return;
+		}
+		if (modulesCompleted.find((m) => m === "data-leakage") === undefined) {
+			addModuleCompleted("data-leakage");
 		}
 
 		createUser(
@@ -185,16 +190,6 @@ const DataLeakage = () => {
 					</div>
 				</CardContent>
 			</Card>
-
-			<div className="text-center text-xs text-muted-foreground pt-4 border-t border-border space-y-1">
-				<p>
-					<span className="font-semibold">Platforma Educațională CyberSim</span> © 2024
-				</p>
-				<p className="text-destructive/70">
-					AVERTISMENT: Această platformă este doar în scop educativ. Testarea neautorizată a sistemelor pe care nu le dețineți
-					este ilegală.
-				</p>
-			</div>
 		</div>
 	);
 };

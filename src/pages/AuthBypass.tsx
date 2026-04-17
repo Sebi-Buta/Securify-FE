@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { useLoginVulnerable, useLoginSecure, useAuth } from "@/hooks";
+import { useModules } from "@/lib/store/modules";
 
 const AuthBypass = () => {
 	const [username, setUsername] = useState("");
@@ -17,6 +18,8 @@ const AuthBypass = () => {
 	const { mutate: loginVulnerable, isPending: isLoginVulnerablePending } = useLoginVulnerable();
 	const { mutate: loginSecure, isPending: isLoginSecurePending } = useLoginSecure();
 	const { login, logout } = useAuth();
+	const { modulesCompleted, addModuleCompleted } = useModules((state) => state);
+
 	const isLoading = isLoginVulnerablePending || isLoginSecurePending;
 
 	const handleLogin = (e: React.FormEvent) => {
@@ -26,6 +29,10 @@ const AuthBypass = () => {
 		if ((!username || !password) && secure) {
 			toast.error("Please enter username and password");
 			return;
+		}
+
+		if (modulesCompleted.find((m) => m === "auth-bypass") === undefined) {
+			addModuleCompleted("auth-bypass");
 		}
 
 		if (secure) {

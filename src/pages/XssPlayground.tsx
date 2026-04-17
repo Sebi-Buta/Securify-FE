@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { useGetComments, useCreateComment, useDeleteComment, useAuth } from "@/hooks";
 import { useQueryClient } from "@tanstack/react-query";
+import { useModules } from "@/lib/store/modules";
 
 const payloads = ["<script>alert('Hackuit')</script>", "<img src=x onerror=alert('Hackuit')>", "<body onload=alert('Hackuit')>"];
 
@@ -17,6 +18,7 @@ const XssPlayground = () => {
 	const { mutate: deleteComment, isPending: isDeleting } = useDeleteComment();
 	const { user } = useAuth();
 	const queryClient = useQueryClient();
+	const { modulesCompleted, addModuleCompleted } = useModules((state) => state);
 
 	const [input, setInput] = useState("");
 	const [secure, setSecure] = useState(true);
@@ -29,6 +31,9 @@ const XssPlayground = () => {
 		if (!input.trim()) {
 			toast.error("Comment cannot be empty");
 			return;
+		}
+		if (modulesCompleted.find((m) => m === "xss-playground") === undefined) {
+			addModuleCompleted("xss-playground");
 		}
 
 		// Show XSS payload feedback

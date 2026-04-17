@@ -2,14 +2,17 @@ import { CheckCircle2, AlertTriangle, Trophy, ArrowRight, Wrench, Code2, Databas
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { useModules } from "@/lib/store/modules";
 
 const labs = [
-	{ title: "Bypass Autentificare SQL Injection", difficulty: "Începător", time: "15 min", icon: Wrench, to: "/auth-bypass" },
-	{ title: "XSS Stocat în Comentarii", difficulty: "Intermediar", time: "20 min", icon: Code2, to: "/xss" },
-	{ title: "Analiza Scurgerii de Date", difficulty: "Avansat", time: "30 min", icon: Database, to: "/data-leakage" },
+	{ title: "Bypass Autentificare SQL Injection", difficulty: "Începător", time: "2 min", icon: Wrench, to: "/auth-bypass" },
+	{ title: "XSS Stocat în Comentarii", difficulty: "Intermediar", time: "3 min", icon: Code2, to: "/xss" },
+	{ title: "Analiza Scurgerii de Date", difficulty: "Avansat", time: "5 min", icon: Database, to: "/data-leakage" },
 ];
 
 const Dashboard = () => {
+	const modulesCompleted = useModules((state) => state.modulesCompleted);
+
 	return (
 		<div className=" space-y-6">
 			<Card className="border-0 overflow-hidden relative">
@@ -21,7 +24,7 @@ const Dashboard = () => {
 							Sistem Operațional
 						</span>
 					</div>
-					<h1 className="text-3xl font-extrabold tracking-tight mb-3">Bine ai venit în Mediul CyberSim</h1>
+					<h1 className="text-3xl font-extrabold tracking-tight mb-3">Bine ai venit în Mediul Securify</h1>
 					<p className="text-muted-foreground max-w-xl mb-6 leading-relaxed">
 						Un mediu sigur și controlat pentru demonstrarea vulnerabilităților web comune. Comută între modul{" "}
 						<span className="font-semibold text-destructive">Atac (Echipa Roșie)</span> și{" "}
@@ -39,44 +42,6 @@ const Dashboard = () => {
 					</div>
 				</CardContent>
 			</Card>
-
-			<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-				<Card>
-					<CardContent className="p-5">
-						<div className="flex items-center justify-between mb-2">
-							<p className="text-sm text-muted-foreground">Module Completate</p>
-							<CheckCircle2 className="h-5 w-5 text-success" />
-						</div>
-						<p className="text-3xl font-bold">
-							3<span className="text-muted-foreground text-lg">/12</span>
-						</p>
-						<p className="text-xs text-success mt-1">+1 astăzi</p>
-					</CardContent>
-				</Card>
-				<Card>
-					<CardContent className="p-5">
-						<div className="flex items-center justify-between mb-2">
-							<p className="text-sm text-muted-foreground">Vulnerabilități Găsite</p>
-							<AlertTriangle className="h-5 w-5 text-destructive" />
-						</div>
-						<p className="text-3xl font-bold">
-							7 <span className="text-sm font-normal text-muted-foreground">Critice: 2</span>
-						</p>
-					</CardContent>
-				</Card>
-				<Card>
-					<CardContent className="p-5">
-						<div className="flex items-center justify-between mb-2">
-							<p className="text-sm text-muted-foreground">Rang Curent</p>
-							<Trophy className="h-5 w-5 text-warning" />
-						</div>
-						<p className="text-3xl font-bold">
-							Novice <span className="text-sm font-normal text-muted-foreground">250 XP</span>
-						</p>
-					</CardContent>
-				</Card>
-			</div>
-
 			<div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
 				<Card>
 					<CardHeader className="pb-3">
@@ -107,24 +72,37 @@ const Dashboard = () => {
 					</CardContent>
 				</Card>
 
-				<Card>
-					<CardHeader className="pb-3">
-						<CardTitle className="text-base">Vectori de Atac Stăpâniți</CardTitle>
-					</CardHeader>
-					<CardContent className="flex items-center justify-center min-h-[180px]">
-						<div className="flex gap-6 text-sm text-muted-foreground">
-							<div className="flex items-center gap-1.5">
-								<span className="h-2.5 w-2.5 rounded-full bg-info" /> SQLi
+				<div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+					<Card>
+						<CardContent className="p-5">
+							<div className="flex items-center justify-between mb-2">
+								<p className="text-sm text-muted-foreground">Module Completate</p>
+								<CheckCircle2 className="h-5 w-5 text-success" />
 							</div>
-							<div className="flex items-center gap-1.5">
-								<span className="h-2.5 w-2.5 rounded-full bg-destructive" /> XSS
+							<p className="text-3xl font-bold">
+								{modulesCompleted.length}
+								<span className="text-muted-foreground text-lg">/3</span>
+							</p>
+							{modulesCompleted.length > 0 && (
+								<p className="text-xs text-success mt-1">+{modulesCompleted.length} astăzi</p>
+							)}
+						</CardContent>
+					</Card>
+					<Card>
+						<CardContent className="p-5">
+							<div className="flex items-center justify-between mb-2">
+								<p className="text-sm text-muted-foreground">Vulnerabilități Găsite</p>
+								<AlertTriangle className="h-5 w-5 text-destructive" />
 							</div>
-							<div className="flex items-center gap-1.5">
-								<span className="h-2.5 w-2.5 rounded-full bg-success" /> CSRF
-							</div>
-						</div>
-					</CardContent>
-				</Card>
+							<p className="text-3xl font-bold">
+								{3 - modulesCompleted.length}{" "}
+								<span className="text-sm font-normal text-muted-foreground">
+									Critice: {3 - modulesCompleted.length < 0 ? 0 : 3 - modulesCompleted.length}
+								</span>
+							</p>
+						</CardContent>
+					</Card>
+				</div>
 			</div>
 		</div>
 	);

@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/hooks";
 import { useUser } from "@/lib/store/user";
+import { useModules } from "@/lib/store/modules";
 
 const navItems = [
 	{ title: "Panou Principal", url: "/", icon: Home },
@@ -29,8 +30,14 @@ export function AppSidebar() {
 	const { mode, setMode, theme, toggleTheme } = useTheme();
 	const { state } = useSidebar();
 	const { logout } = useAuth();
+	const { resetModules, modulesCompleted } = useModules((state) => state);
 	const user = useUser((state) => state.appUser);
 	const collapsed = state === "collapsed";
+
+	const handleLogout = () => {
+		logout();
+		resetModules();
+	};
 
 	return (
 		<Sidebar collapsible="icon">
@@ -116,10 +123,12 @@ export function AppSidebar() {
 					<div className="px-4 mt-4">
 						<p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Progres Învățare</p>
 						<div className="flex items-center justify-between text-xs mb-1.5">
-							<span className="text-primary font-medium">Începător</span>
-							<span className="text-muted-foreground">45%</span>
+							<span className="text-primary font-medium">
+								{modulesCompleted.length === 3 ? "Avansat" : "Începător"}
+							</span>
+							<span className="text-muted-foreground">{Math.round((modulesCompleted.length / 3) * 100)}%</span>
 						</div>
-						<Progress value={45} className="h-1.5" />
+						<Progress value={(modulesCompleted.length / 3) * 100} className="h-1.5" />
 					</div>
 				)}
 			</SidebarContent>
@@ -153,7 +162,7 @@ export function AppSidebar() {
 							</div>
 							{user && (
 								<button
-									onClick={logout}
+									onClick={handleLogout}
 									className="text-muted-foreground hover:text-foreground ml-2 p-1 rounded transition-colors"
 									title="Logout"
 								>
