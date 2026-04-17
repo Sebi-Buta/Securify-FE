@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { User } from "./useApi";
 import { set } from "date-fns";
-
-const STORAGE_KEY = "securify_user";
+import { useUser } from "@/lib/store/user";
 
 export interface AuthState {
 	user: User | null;
@@ -15,23 +14,26 @@ export interface AuthState {
  * Stores user data in localStorage for persistence
  */
 export const useAuth = () => {
+	const { appUser, setUser, deleteUser } = useUser((state) => state);
 	const [authState, setAuthState] = useState<AuthState>({
-		user: null,
+		user: appUser,
 		isAuthenticated: false,
 		loading: true,
 	});
 
 	const login = useCallback((user: User) => {
-		localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+		setUser(user);
+
 		setAuthState({
 			user,
 			isAuthenticated: true,
 			loading: false,
 		});
+		// window.location.reload(); // Reload to reset app state after login
 	}, []);
 
 	const logout = useCallback(() => {
-		localStorage.removeItem(STORAGE_KEY);
+		deleteUser();
 		setAuthState({
 			user: null,
 			isAuthenticated: false,
@@ -41,23 +43,12 @@ export const useAuth = () => {
 
 	// Initialize from localStorage on mount
 	useEffect(() => {
-		const storedUser = localStorage.getItem(STORAGE_KEY);
-		if (storedUser) {
-			try {
-				const user = JSON.parse(storedUser);
-				setAuthState({
-					user,
-					isAuthenticated: true,
-					loading: false,
-				});
-			} catch {
-				localStorage.removeItem(STORAGE_KEY);
-				setAuthState({
-					user: null,
-					isAuthenticated: false,
-					loading: false,
-				});
-			}
+		if (appUser) {
+			setAuthState({
+				user: appUser,
+				isAuthenticated: true,
+				loading: false,
+			});
 		} else {
 			setAuthState({
 				user: null,

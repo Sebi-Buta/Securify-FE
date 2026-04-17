@@ -12,7 +12,7 @@ const AuthBypass = () => {
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
 	const [showPassword, setShowPassword] = useState(false);
-	const [secure, setSecure] = useState(false);
+	const [secure, setSecure] = useState(true);
 
 	const { mutate: loginVulnerable, isPending: isLoginVulnerablePending } = useLoginVulnerable();
 	const { mutate: loginSecure, isPending: isLoginSecurePending } = useLoginSecure();
@@ -35,8 +35,8 @@ const AuthBypass = () => {
 				{
 					onSuccess: (data) => {
 						if (data.success) {
-							toast.success("🛡️ Autentificare securizată reușită!");
 							login(data.user); // Update auth state with user data
+							toast.success("🛡️ Autentificare securizată reușită!");
 						} else {
 							toast.error(data.message || "Authentication failed");
 						}
@@ -58,8 +58,8 @@ const AuthBypass = () => {
 				{
 					onSuccess: (data) => {
 						if (data.success) {
-							toast.success("Autentificare reușită (credențiale valide).");
 							login(data.user);
+							toast.success("Autentificare reușită (credențiale valide).");
 						} else {
 							toast.error(data.message || "Authentication failed");
 						}

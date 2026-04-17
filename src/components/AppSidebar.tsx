@@ -1,4 +1,4 @@
-import { Home, Terminal, Code2, Database, Shield, Moon, Sun } from "lucide-react";
+import { Home, Terminal, Code2, Database, Shield, Moon, Sun, LogOut } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useTheme } from "@/contexts/ThemeContext";
 import { Progress } from "@/components/ui/progress";
@@ -16,6 +16,7 @@ import {
 	useSidebar,
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/hooks";
+import { useUser } from "@/lib/store/user";
 
 const navItems = [
 	{ title: "Panou Principal", url: "/", icon: Home },
@@ -27,7 +28,8 @@ const navItems = [
 export function AppSidebar() {
 	const { mode, setMode, theme, toggleTheme } = useTheme();
 	const { state } = useSidebar();
-	const { user } = useAuth();
+	const { logout } = useAuth();
+	const user = useUser((state) => state.appUser);
 	const collapsed = state === "collapsed";
 
 	return (
@@ -137,14 +139,27 @@ export function AppSidebar() {
 						{theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
 					</button>
 				)}
-				<div className="flex items-center gap-2">
+				<div className="flex items-center gap-2 w-full">
 					<Avatar className="h-8 w-8">
 						<AvatarFallback className="bg-primary/10 text-primary text-xs">US</AvatarFallback>
 					</Avatar>
 					{!collapsed && (
-						<div className="text-xs">
-							<p className="font-medium text-foreground">{user?.username || "Utilizator"}</p>
-							<p className="text-muted-foreground">Hacker Nivel 1</p>
+						<div className="flex justify-between w-full items-center">
+							<div className="text-xs">
+								<div className="flex items-center justify-between">
+									<p className="font-medium text-foreground">{user?.username || "Utilizator"}</p>
+								</div>
+								<p className="text-muted-foreground">Hacker Nivel 1</p>
+							</div>
+							{user && (
+								<button
+									onClick={logout}
+									className="text-muted-foreground hover:text-foreground ml-2 p-1 rounded transition-colors"
+									title="Logout"
+								>
+									<LogOut className="h-5 w-5" />
+								</button>
+							)}
 						</div>
 					)}
 				</div>

@@ -3,15 +3,17 @@ import { persist } from "zustand/middleware";
 import { User } from "../../hooks/useApi";
 
 interface UserState {
-	users: User[];
-	setUsers: (users: User[]) => void;
+	appUser: User | null;
+	setUser: (user: User) => void;
+	deleteUser: () => void;
 }
 
 export const useUser = create<UserState>()(
 	persist(
 		(set) => ({
-			users: [],
-			setUsers: (users: User[]) => set({ users }),
+			appUser: null,
+			setUser: (user: User) => set({ appUser: user }),
+			deleteUser: () => set({ appUser: null }),
 		}),
 		{
 			name: "user",
