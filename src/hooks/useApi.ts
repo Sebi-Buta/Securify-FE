@@ -1,6 +1,6 @@
 import { useMutation, useQuery, UseQueryResult } from "@tanstack/react-query";
 
-const API_BASE_URL = "https://securify-be.onrender.com";
+const API_BASE_URL = "https://securify-be.onrender.com/api";
 
 // Types for API responses
 export interface User {
