@@ -121,7 +121,7 @@ const AuthBypass = () => {
 								<form onSubmit={handleLogin} className="space-y-4">
 									<div className="space-y-1.5">
 										<Label htmlFor="email" className="text-sm">
-											Email ou Nume Utilizator
+											Email sau Nume Utilizator
 										</Label>
 										<Input
 											id="email"

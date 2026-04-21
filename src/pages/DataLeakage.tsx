@@ -113,9 +113,6 @@ const DataLeakage = () => {
 							<span className="font-mono text-xs bg-secondary px-2 py-1 rounded">users_table.sql</span>
 							<span className="text-xs text-success font-medium animate-pulse-glow">● LIVE DATABASE</span>
 						</div>
-						<Button variant="outline" size="sm">
-							<Download className="h-3.5 w-3.5 mr-1.5" /> Export CSV
-						</Button>
 					</div>
 				</CardHeader>
 				<CardContent>

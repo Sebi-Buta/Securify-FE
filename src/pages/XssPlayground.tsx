@@ -10,7 +10,7 @@ import { useGetComments, useCreateComment, useDeleteComment, useAuth } from "@/h
 import { useQueryClient } from "@tanstack/react-query";
 import { useModules } from "@/lib/store/modules";
 
-const payloads = ["<script>alert('Hackuit')</script>", "<img src=x onerror=alert('Hackuit')>", "<body onload=alert('Hackuit')>"];
+const payloads = ["<img src=x onerror=alert('Hackuit')>", "<iframe src=\"javascript:alert('XSS din Iframe')\"></iframe>"];
 
 const XssPlayground = () => {
 	const { data: comments = [], isLoading, error } = useGetComments();
