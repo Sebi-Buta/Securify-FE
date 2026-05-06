@@ -1,73 +1,61 @@
-# Welcome to your Lovable project
+﻿# Securify Frontend
 
-## Project info
+This repository contains the frontend for the Securify web application. The app provides a user interface for exploring common web security scenarios, including:
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+- Authentication bypass testing
+- Data leakage / sensitive information checks
+- Cross-site scripting (XSS) playgrounds
 
-## How can I edit this code?
+The frontend is built with React, TypeScript, Vite, Tailwind CSS, and shadcn-ui components.
 
-There are several ways of editing your application.
+## Getting started
 
-**Use Lovable**
+### Install dependencies
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+From the `Securify-FE` folder, install dependencies with your preferred package manager:
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+npm install
+```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+or, if you are using Bun:
 
-# Step 3: Install the necessary dependencies.
-npm i
+```sh
+bun install
+```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+### Run the development server
+
+Start the app locally with:
+
+```sh
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+or with Bun:
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```sh
+bun run dev
+```
 
-**Use GitHub Codespaces**
+The app will be available at `http://localhost:5173` by default.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Available scripts
 
-## What technologies are used for this project?
+- `npm run dev` - start the Vite development server
+- `npm run build` - build the production app
+- `npm run preview` - preview the production build locally
+- `npm run lint` - run ESLint checks
+- `npm run test` - run Vitest tests
 
-This project is built with:
+## Project structure
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+- `src/` - application source code
+- `src/pages/` - main page views such as `AuthBypass`, `DataLeakage`, and `XssPlayground`
+- `src/components/` - reusable UI components and layout
+- `src/hooks/` - custom hooks
+- `src/lib/` - utility modules and store configuration
 
-## How can I deploy this project?
+## Notes
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+This frontend is focused on security testing workflows and demonstration UI. If you need to connect it to a backend, the backend code lives in the sibling `Securify-BE` folder.
